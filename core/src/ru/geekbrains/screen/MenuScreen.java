@@ -19,7 +19,6 @@ public class MenuScreen extends BaseScreen {
         pos = new Vector2();
         v = new Vector2(0.5f,0.6f);
         len = v.len();
-        vCpyNor = v.cpy().nor();
         img = new Texture("badlogic.jpg");
     }
 
@@ -48,9 +47,7 @@ public class MenuScreen extends BaseScreen {
         System.out.println("touchDown touch.x = " + touch.x + " touch.y = " + touch.y);
         Vector2 dist = touch.cpy().sub(pos);
         dist.nor();
-        double cosAngle = Math.abs(vCpyNor.dot(dist));
-        double projectionV = len * cosAngle;
-        v = dist.scl((float) projectionV);
+        v = dist.scl((float) len);
         return false;
     }
     @Override
@@ -60,20 +57,19 @@ public class MenuScreen extends BaseScreen {
         Vector2 up = new Vector2();
         right.set(1, 0);
         up.set(0, 1);
-        double angle = vCpyNor.dot(right); ;
         switch(keycode) {
             case 19:
-                v = up.scl((float)(len * Math.sin(angle)));
+                v = up.scl((float)len );
 
                 break;
             case 20:
-                v = up.scl(-1).scl((float)(len * Math.sin(angle)));
+                v = up.scl(-1).scl((float)len );
                 break;
             case 21:
-                v = right.scl(-1).scl(Math.abs(vCpyNor.dot(right)));
+                v = right.scl(-1).scl((float) len);
                 break;
             case 22:
-                v = right.scl(Math.abs(vCpyNor.dot(right)));
+                v = right.scl((float) len);
                 break;
         }
         return false;

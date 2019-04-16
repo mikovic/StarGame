@@ -7,34 +7,33 @@ import com.badlogic.gdx.math.Vector2;
 import ru.geekbrains.base.Sprite;
 import ru.geekbrains.math.Rect;;
 
-public class Badlogic  extends Sprite {
-protected Vector2 velocity;
-protected double len;
+public class Badlogic extends Sprite {
+    protected Vector2 velocity;
+    protected double len;
 
-    public Badlogic(TextureRegion region, Vector2 velocity) {
+    public Badlogic(TextureRegion region) {
         super(region);
-        this.velocity = velocity;
+        this.velocity = new Vector2(0.001f, 0.0002f);
         len = this.velocity.len();
 
     }
+
     @Override
     public void resize(Rect worldBounds) {
-        setHeightProportion(worldBounds.getHeight()/4);
-        pos.set(worldBounds.getLeft()+getHalfWidth(), worldBounds.getBottom()+getHalfHeight());
+        setHeightProportion(worldBounds.getHeight() / 4);
+        pos.set(worldBounds.getLeft() + getHalfWidth(), worldBounds.getBottom() + getHalfHeight());
 
     }
 
-    public void draw(SpriteBatch batch, Vector2 pos ) {
-        batch.draw(
-                regions[frame],
-                getLeft(), getBottom(),
-                halfWidth, halfHeight,
-                getWidth(), getHeight(),
-                scale, scale,
-                0
-        );
-    }
+    public void update(Vector2 touch) {
+        if (touch.cpy().sub(pos).len() > len || touch.cpy().sub(pos).len() == 0) {
+            pos.add(velocity);
+        } else {
+            pos.set(touch);
+            velocity.setZero();
+        }
 
+    }
 
     @Override
     public boolean touchDown(Vector2 touch, int pointer) {
@@ -50,23 +49,22 @@ protected double len;
         Vector2 up = new Vector2();
         right.set(1, 0);
         up.set(0, 1);
-        switch(keycode) {
+        switch (keycode) {
             case 19:
-                this.velocity = up.scl((float)len);
+                this.velocity = up.scl((float) len);
                 break;
             case 20:
-                this.velocity = up.scl(-1).scl((float)len);
+                this.velocity = up.scl(-1).scl((float) len);
                 break;
             case 21:
-                this.velocity  = right.scl(-1).scl((float)len);
+                this.velocity = right.scl(-1).scl((float) len);
                 break;
             case 22:
-                this.velocity = right.scl((float)len);
+                this.velocity = right.scl((float) len);
                 break;
         }
         return false;
     }
-
 
 
     public Vector2 getVelocity() {

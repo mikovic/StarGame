@@ -16,9 +16,8 @@ public class MenuScreen extends BaseScreen {
     private Texture blg;
     private Background background;
     private Badlogic badlogic;
-    private Vector2 velocity;
 
-    protected double len;
+
 
 
     @Override
@@ -27,8 +26,8 @@ public class MenuScreen extends BaseScreen {
         bg = new Texture("sky.png");
         blg = new Texture("badlogic.jpg");
         background = new Background(new TextureRegion(bg));
-        velocity = new Vector2(0.001f, 0.0002f);
-        badlogic = new Badlogic(new TextureRegion(blg), velocity);
+        badlogic = new Badlogic(new TextureRegion(blg));
+
     }
 
     @Override
@@ -43,13 +42,8 @@ public class MenuScreen extends BaseScreen {
         super.render(delta);
         batch.begin();
         background.draw(batch);
-        if (getTouch().cpy().sub(badlogic.pos).len() > badlogic.getVelocity().len() || getTouch().cpy().sub(badlogic.pos).len() == 0) {
-            badlogic.pos.add(badlogic.getVelocity());
-        } else {
-            badlogic.pos.set(getTouch());
-            badlogic.getVelocity().setZero();
-        }
-        badlogic.draw(batch, badlogic.pos);
+        badlogic.update(getTouch());
+        badlogic.draw(batch);
         batch.end();
     }
 
@@ -57,6 +51,7 @@ public class MenuScreen extends BaseScreen {
     public void dispose() {
         super.dispose();
         bg.dispose();
+        blg.dispose();
     }
 
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
@@ -64,7 +59,6 @@ public class MenuScreen extends BaseScreen {
         touchDown(getTouch(), pointer);
         return false;
     }
-
 
     @Override
     public boolean touchDown(Vector2 touch, int pointer) {
@@ -77,6 +71,10 @@ public class MenuScreen extends BaseScreen {
     public boolean keyDown(int keycode) {
         badlogic.keyDown(keycode);
         return false;
+    }
+
+    public void update(Vector2 touch) {
+        badlogic.update(touch);
     }
 
 }

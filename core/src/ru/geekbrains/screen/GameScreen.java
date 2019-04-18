@@ -1,5 +1,6 @@
 package ru.geekbrains.screen;
 
+
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -10,22 +11,29 @@ import ru.geekbrains.base.BaseScreen;
 import ru.geekbrains.math.Rect;
 import ru.geekbrains.sprite.Background;
 import ru.geekbrains.sprite.ButtonExit;
+import ru.geekbrains.sprite.ButtonMenu;
 import ru.geekbrains.sprite.ButtonPlay;
+import ru.geekbrains.sprite.Ship;
 import ru.geekbrains.sprite.Star;
 
-public class MenuScreen extends BaseScreen {
+import ru.geekbrains.base.BaseScreen;
+
+public class GameScreen extends BaseScreen {
 
     private Game game;
 
     private Texture bg;
     private Background background;
     private TextureAtlas atlas;
+    private TextureAtlas atlasMain;
     private Star starList[];
 
     private ButtonExit buttonExit;
     private ButtonPlay buttonPlay;
+    private ButtonMenu buttonMenu;
+    private Ship ship;
 
-    public MenuScreen(Game game) {
+    public GameScreen(Game game) {
         this.game = game;
     }
 
@@ -35,23 +43,21 @@ public class MenuScreen extends BaseScreen {
         bg = new Texture("textures/sky.png");
         background = new Background(new TextureRegion(bg));
         atlas = new TextureAtlas("textures/menuAtlas.tpack");
-        starList = new Star[256];
-        for (int i = 0; i < starList.length; i++) {
-            starList[i] = new Star(atlas);
-        }
+        atlasMain = new TextureAtlas("textures/mainAtlas.tpack");
         buttonExit = new ButtonExit(atlas);
-        buttonPlay = new ButtonPlay(atlas, game);
+        buttonMenu = new ButtonMenu(atlas, game);
+        ship = new Ship(atlasMain, "ship");
+
     }
 
     @Override
     public void resize(Rect worldBounds) {
         super.resize(worldBounds);
         background.resize(worldBounds);
-        for (Star star : starList) {
-            star.resize(worldBounds);
-        }
+        ship.resize(worldBounds);
         buttonExit.resize(worldBounds);
-        buttonPlay.resize(worldBounds);
+        buttonMenu.resize(worldBounds);
+
     }
 
     @Override
@@ -61,21 +67,18 @@ public class MenuScreen extends BaseScreen {
         draw();
     }
 
-    private void update(float delta) {
-        for (Star star : starList) {
-            star.update(delta);
-        }
-    }
 
     private void draw() {
         batch.begin();
         background.draw(batch);
-        for (Star star : starList) {
-            star.draw(batch);
-        }
+        ship.draw(batch);
+        buttonMenu.draw(batch);
         buttonExit.draw(batch);
-        buttonPlay.draw(batch);
         batch.end();
+    }
+
+    private void update(float delta) {
+        ship.update(delta);
     }
 
     @Override
@@ -88,14 +91,20 @@ public class MenuScreen extends BaseScreen {
     @Override
     public boolean touchDown(Vector2 touch, int pointer) {
         buttonExit.touchDown(touch, pointer);
-        buttonPlay.touchDown(touch, pointer);
+        buttonMenu.touchDown(touch, pointer);
         return false;
     }
 
     @Override
     public boolean touchUp(Vector2 touch, int pointer) {
         buttonExit.touchUp(touch, pointer);
-        buttonPlay.touchUp(touch, pointer);
+        buttonMenu.touchUp(touch, pointer);
+        return false;
+    }
+
+    @Override
+    public boolean keyDown(int keycode) {
+        ship.keyDown(keycode);
         return false;
     }
 }

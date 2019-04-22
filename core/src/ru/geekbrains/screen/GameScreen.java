@@ -1,7 +1,8 @@
 package ru.geekbrains.screen;
 
 
-import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -9,54 +10,38 @@ import com.badlogic.gdx.math.Vector2;
 
 import ru.geekbrains.base.BaseScreen;
 import ru.geekbrains.math.Rect;
+import ru.geekbrains.pool.BulletPool;
+import ru.geekbrains.pool.EnemyPool;
 import ru.geekbrains.sprite.Background;
-import ru.geekbrains.sprite.ButtonExit;
-import ru.geekbrains.sprite.ButtonMenu;
-import ru.geekbrains.sprite.ButtonPlay;
-import ru.geekbrains.sprite.Ship;
+import ru.geekbrains.sprite.EnemyShip;
+import ru.geekbrains.sprite.MainShip;
 import ru.geekbrains.sprite.Star;
 
-import ru.geekbrains.base.BaseScreen;
-
 public class GameScreen extends BaseScreen {
-
-    private Game game;
-
     private Texture bg;
     private Background background;
     private TextureAtlas atlas;
-    private TextureAtlas atlasMain;
     private Star starList[];
+    private MainShip mainShip;
+    private EnemyShip enemyShip;
+    private EnemyPool enemyPool;
+    private BulletPool bulletPool;
 
-    private ButtonExit buttonExit;
-    private ButtonPlay buttonPlay;
-    private ButtonMenu buttonMenu;
-    private Ship ship;
-
-    public GameScreen(Game game) {
-        this.game = game;
-    }
 
     @Override
     public void show() {
         super.show();
         bg = new Texture("textures/sky.png");
         background = new Background(new TextureRegion(bg));
-        atlas = new TextureAtlas("textures/menuAtlas.tpack");
-        atlasMain = new TextureAtlas("textures/mainAtlas.tpack");
-        buttonExit = new ButtonExit(atlas);
-        buttonMenu = new ButtonMenu(atlas, game);
-        ship = new Ship(atlasMain, "ship");
-
-    }
-
-    @Override
-    public void resize(Rect worldBounds) {
-        super.resize(worldBounds);
-        background.resize(worldBounds);
-        ship.resize(worldBounds);
-        buttonExit.resize(worldBounds);
-        buttonMenu.resize(worldBounds);
+        atlas = new TextureAtlas("textures/mainAtlas.tpack");
+        starList = new Star[64];
+        for (int i = 0; i < starList.length; i++) {
+            starList[i] = new Star(atlas);
+        }
+        bulletPool = new BulletPool();
+        mainShip = new MainShip(atlas, bulletPool);
+        enemyPool = new EnemyPool(atlas, bulletPool,worldBounds );
+        music.play();
 
     }
 
@@ -64,21 +49,49 @@ public class GameScreen extends BaseScreen {
     public void render(float delta) {
         super.render(delta);
         update(delta);
+        freeAllDestroyedSprites();
         draw();
     }
 
+    private void update(float delta) {
+        for (Star star : starList) {
+            star.update(delta);
+        }
+
+        mainShip.update(delta);
+        bulletPool.updateActiveSprites(delta);
+        enemyPool.update(delta);
+        enemyPool.updateActiveSprites(delta);
+
+
+    }
+
+    private void freeAllDestroyedSprites() {
+        bulletPool.freeAllDestroyedActiveSprites();
+        enemyPool.freeAllActiveSprites();
+    }
 
     private void draw() {
         batch.begin();
         background.draw(batch);
-        ship.draw(batch);
-        buttonMenu.draw(batch);
-        buttonExit.draw(batch);
+        for (Star star : starList) {
+            star.draw(batch);
+        }
+        mainShip.draw(batch);
+        bulletPool.drawActiveSprites(batch);
+        enemyPool.drawActiveSprites(batch);
         batch.end();
     }
 
-    private void update(float delta) {
-        ship.update(delta);
+    @Override
+    public void resize(Rect worldBounds) {
+        super.resize(worldBounds);
+        background.resize(worldBounds);
+        for (Star star : starList) {
+            star.resize(worldBounds);
+        }
+        mainShip.resize(worldBounds);
+
     }
 
     @Override
@@ -86,25 +99,33 @@ public class GameScreen extends BaseScreen {
         super.dispose();
         bg.dispose();
         atlas.dispose();
+        bulletPool.dispose();
+        enemyPool.dispose();
+        music.dispose();
+
+    }
+
+    @Override
+    public boolean keyDown(int keycode) {
+        mainShip.keyDown(keycode);
+        return false;
+    }
+
+    @Override
+    public boolean keyUp(int keycode) {
+        mainShip.keyUp(keycode);
+        return false;
     }
 
     @Override
     public boolean touchDown(Vector2 touch, int pointer) {
-        buttonExit.touchDown(touch, pointer);
-        buttonMenu.touchDown(touch, pointer);
+        mainShip.touchDown(touch, pointer);
         return false;
     }
 
     @Override
     public boolean touchUp(Vector2 touch, int pointer) {
-        buttonExit.touchUp(touch, pointer);
-        buttonMenu.touchUp(touch, pointer);
-        return false;
-    }
-
-    @Override
-    public boolean keyDown(int keycode) {
-        ship.keyDown(keycode);
+        mainShip.touchUp(touch, pointer);
         return false;
     }
 }

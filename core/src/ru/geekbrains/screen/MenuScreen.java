@@ -24,7 +24,6 @@ public class MenuScreen extends BaseScreen {
 
     private ButtonExit buttonExit;
     private ButtonPlay buttonPlay;
-
     public MenuScreen(Game game) {
         this.game = game;
     }
@@ -41,6 +40,7 @@ public class MenuScreen extends BaseScreen {
         }
         buttonExit = new ButtonExit(atlas);
         buttonPlay = new ButtonPlay(atlas, game);
+        music.play();
     }
 
     @Override

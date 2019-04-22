@@ -1,59 +1,74 @@
-
-mainAtlas1.png
+mainAtlas.png
 format: RGBA8888
-filter: Nearest,Nearest
+filter: MipMapLinearNearest,Linear
 repeat: none
-ship4
-  rotate: false
-  xy: 2, 2
-  size: 512, 512
-  orig: 512, 512
-  offset: 0, 0
-  index: -1
-ship2
-  rotate: false
-  xy: 516, 2
-  size: 500, 500
-  orig: 500, 500
-  offset: 0, 0
-  index: -1
-game-over
-  rotate: false
-  xy: 2, 516
-  size: 350, 450
-  orig: 350, 450
-  offset: 0, 0
-  index: -1
 explosion
   rotate: false
-  xy: 354, 516
-  size: 480, 288
-  orig: 480, 288
+  xy: 8, 84
+  size: 900, 900
+  orig: 900, 900
+  offset: 0, 0
+  index: 0
+enemy2
+  rotate: false
+  xy: 916, 646
+  size: 784, 338
+  orig: 784, 338
   offset: 0, 0
   index: -1
-ship
+enemy0
   rotate: false
-  xy: 836, 516
-  size: 164, 241
-  orig: 164, 241
+  xy: 1708, 675
+  size: 332, 309
+  orig: 332, 309
   offset: 0, 0
   index: -1
-
-mainAtlas2.png
-format: RGBA8888
-filter: Nearest,Nearest
-repeat: none
-ship3
+enemy1
   rotate: false
-  xy: 2, 2
-  size: 512, 512
-  orig: 512, 512
+  xy: 916, 390
+  size: 440, 248
+  orig: 440, 248
   offset: 0, 0
   index: -1
-newgame
+main_ship
   rotate: false
-  xy: 516, 2
-  size: 256, 256
-  orig: 256, 256
+  xy: 916, 95
+  size: 390, 287
+  orig: 390, 287
+  offset: 0, 0
+  index: -1
+message_game_over
+  rotate: false
+  xy: 8, 8
+  size: 493, 68
+  orig: 493, 68
+  offset: 0, 0
+  index: -1
+button_new_game
+  rotate: false
+  xy: 509, 20
+  size: 365, 56
+  orig: 365, 56
+  offset: 0, 0
+  index: -1
+bulletEnemy
+  rotate: false
+  xy: 1708, 651
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+bulletMainShip
+  rotate: false
+  xy: 1364, 622
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+star
+  rotate: false
+  xy: 1314, 372
+  size: 11, 10
+  orig: 11, 10
   offset: 0, 0
   index: -1

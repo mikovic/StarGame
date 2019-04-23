@@ -1,59 +1,31 @@
 package ru.geekbrains.pool;
 
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.audio.Sound;
 
-import ru.geekbrains.base.Sprite;
 import ru.geekbrains.base.SpritesPool;
 import ru.geekbrains.math.Rect;
-import ru.geekbrains.sprite.Bullet;
-import ru.geekbrains.sprite.EnemyShip;
+import ru.geekbrains.sprite.Enemy;
 import ru.geekbrains.sprite.MainShip;
-import ru.geekbrains.utils.Regions;
 
-public class EnemyPool extends SpritesPool<Sprite> {
+public class EnemyPool extends SpritesPool<Enemy> {
 
-    private float reloadInterval = 0.2f;
-    private float reloadTimer;
-    TextureRegion[] regions;
-    BulletPool bulletPool;
-    Rect worldBounds;
+    private Rect worldBounds;
+    private BulletPool bulletPool;
+    private Sound shootSound;
+    private MainShip mainShip;
 
-    public EnemyPool(TextureAtlas atlas, BulletPool bulletPool, Rect worldBounds) {
-        this.regions = Regions.split(atlas.findRegion("enemy1"), 1, 2, 2);
+    public EnemyPool(BulletPool bulletPool, Sound shootSound, Rect worldBounds, MainShip mainShip) {
         this.bulletPool = bulletPool;
+        this.shootSound = shootSound;
         this.worldBounds = worldBounds;
-    }
-
-    public void update(float delta) {
-        reloadTimer += delta;
-        if (reloadTimer >= reloadInterval) {
-            reloadTimer = 0f;
-            EnemyShip enemyShip = (EnemyShip) this.obtain();
-            enemyShip.setRegions(this.regions);
-            enemyShip.set(bulletPool, 0.3f, worldBounds);
-
-        }
-
-
+        this.mainShip = mainShip;
     }
 
     @Override
-    public void updateActiveSprites(float delta) {
-
-
-        for (Sprite sprite : activeObjects) {
-            if (!sprite.isDestroyed()) {
-                sprite.update(delta);
-            }
-        }
-    }
-
-
-    @Override
-    protected EnemyShip newObject() {
-        return new EnemyShip();
+    protected Enemy newObject() {
+        return new Enemy(bulletPool, shootSound, worldBounds, mainShip);
     }
 }
+
 
 

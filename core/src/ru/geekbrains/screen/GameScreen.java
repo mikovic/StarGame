@@ -14,17 +14,21 @@ import ru.geekbrains.math.Rect;
 import ru.geekbrains.pool.BulletPool;
 import ru.geekbrains.pool.EnemyPool;
 import ru.geekbrains.sprite.Background;
+import ru.geekbrains.sprite.Bullet;
+import ru.geekbrains.sprite.Enemy;
 import ru.geekbrains.sprite.MainShip;
+import ru.geekbrains.sprite.Message;
 import ru.geekbrains.sprite.Star;
 import ru.geekbrains.utils.EnemyGenerator;
 
 public class GameScreen extends BaseScreen {
 
     private Texture bg;
+    private TextureRegion gover;
     private Background background;
     private TextureAtlas atlas;
     private Star starList[];
-
+    private Message message;
     private MainShip mainShip;
 
     private BulletPool bulletPool;
@@ -47,6 +51,9 @@ public class GameScreen extends BaseScreen {
         bg = new Texture("textures/sky.png");
         background = new Background(new TextureRegion(bg));
         atlas = new TextureAtlas("textures/mainAtlas.tpack");
+        gover = atlas.findRegion("message_game_over");
+        message = new Message(gover);
+        message.setHeightProportion(0.05f);
         starList = new Star[64];
         for (int i = 0; i < starList.length; i++) {
             starList[i] = new Star(atlas);
@@ -71,14 +78,36 @@ public class GameScreen extends BaseScreen {
         for (Star star : starList) {
             star.update(delta);
         }
-        mainShip.update(delta);
-        bulletPool.updateActiveSprites(delta);
-        enemyPool.updateActiveSprites(delta);
-        enemyGenerator.generate(delta);
+        if (!mainShip.isDestroyed()) {
+            mainShip.update(delta);
+            bulletPool.updateActiveSprites(delta);
+            enemyPool.updateActiveSprites(delta);
+            enemyGenerator.generate(delta);
+        } else {
+            message.pos.set(worldBounds.pos);
+
+        }
+
     }
 
     private void checkCollisions() {
+        for (Enemy schip : enemyPool.getActiveObjects()) {
+            if (!mainShip.isOutside(schip)) {
+                mainShip.destroy();
+                schip.destroy();
+                break;
+            }
 
+        }
+
+        for (Bullet bullet : bulletPool.getActiveObjects()){
+            if( bullet.getOwner() instanceof Enemy) {
+                if (!mainShip.isOutside(bullet)) {
+                    mainShip.destroy();
+                    bullet.destroy();
+                }
+            }
+        }
     }
 
     private void freeAllDestroyedSprites() {
@@ -94,11 +123,15 @@ public class GameScreen extends BaseScreen {
         }
         if (!mainShip.isDestroyed()) {
             mainShip.draw(batch);
+            bulletPool.drawActiveSprites(batch);
+            enemyPool.drawActiveSprites(batch);
+        } else {
+            message.draw(batch);
         }
-        bulletPool.drawActiveSprites(batch);
-        enemyPool.drawActiveSprites(batch);
+
         batch.end();
     }
+
     @Override
     public void resize(Rect worldBounds) {
         super.resize(worldBounds);

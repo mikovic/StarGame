@@ -1,6 +1,7 @@
 package ru.geekbrains.screen;
 
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
@@ -8,9 +9,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
-
 import java.util.List;
-
 import ru.geekbrains.base.BaseScreen;
 import ru.geekbrains.math.Rect;
 import ru.geekbrains.pool.BulletPool;
@@ -18,32 +17,37 @@ import ru.geekbrains.pool.EnemyPool;
 import ru.geekbrains.pool.ExplosionPool;
 import ru.geekbrains.sprite.Background;
 import ru.geekbrains.sprite.Bullet;
+import ru.geekbrains.sprite.ButtonNewGame;
 import ru.geekbrains.sprite.Enemy;
 import ru.geekbrains.sprite.MainShip;
+import ru.geekbrains.sprite.Message;
 import ru.geekbrains.sprite.Star;
 import ru.geekbrains.utils.EnemyGenerator;
 
 public class GameScreen extends BaseScreen {
 
+    private Game game;
     private enum State {PLAYING, PAUSE, GAME_OVER}
-
     private State state;
-
     private Texture bg;
     private Background background;
     private TextureAtlas atlas;
+    private TextureAtlas atlasMenu;
     private Star starList[];
     private MainShip mainShip;
     private BulletPool bulletPool;
     private EnemyPool enemyPool;
     private ExplosionPool explosionPool;
-
+    private Message message;
     private Music music;
     private Sound laserSound;
     private Sound bulletSound;
     private Sound explosionSound;
-
+    private ButtonNewGame buttonNewGame;
     private EnemyGenerator enemyGenerator;
+    public GameScreen(Game game) {
+        this.game = game;
+    }
 
     @Override
     public void show() {
@@ -57,15 +61,18 @@ public class GameScreen extends BaseScreen {
         bg = new Texture("textures/sky.png");
         background = new Background(new TextureRegion(bg));
         atlas = new TextureAtlas("textures/mainAtlas.tpack");
+        atlasMenu =  new TextureAtlas("textures/menuAtlas.tpack");
         starList = new Star[64];
         for (int i = 0; i < starList.length; i++) {
             starList[i] = new Star(atlas);
         }
+        message = new Message(atlas.findRegion("message_game_over"));
         bulletPool = new BulletPool();
         explosionPool = new ExplosionPool(atlas, explosionSound);
         mainShip = new MainShip(atlas, bulletPool, explosionPool, laserSound);
         enemyPool = new EnemyPool(bulletPool, explosionPool, bulletSound, worldBounds, mainShip);
         enemyGenerator = new EnemyGenerator(atlas, enemyPool, worldBounds);
+        buttonNewGame = new ButtonNewGame(atlasMenu, this);
         state = State.PLAYING;
     }
 
@@ -88,6 +95,9 @@ public class GameScreen extends BaseScreen {
             enemyGenerator.generate(delta);
             bulletPool.updateActiveSprites(delta);
             enemyPool.updateActiveSprites(delta);
+        }
+        if (state == State.GAME_OVER) {
+            message.pos.set(worldBounds.pos);
         }
     }
 
@@ -148,6 +158,7 @@ public class GameScreen extends BaseScreen {
     private void draw() {
         batch.begin();
         background.draw(batch);
+        buttonNewGame.draw(batch);
         for (Star star : starList) {
             star.draw(batch);
         }
@@ -155,6 +166,9 @@ public class GameScreen extends BaseScreen {
             mainShip.draw(batch);
             bulletPool.drawActiveSprites(batch);
             enemyPool.drawActiveSprites(batch);
+        }
+        if (state == State.GAME_OVER) {
+            message.draw(batch);
         }
         explosionPool.drawActiveSprites(batch);
         batch.end();
@@ -164,12 +178,15 @@ public class GameScreen extends BaseScreen {
     public void resize(Rect worldBounds) {
         super.resize(worldBounds);
         background.resize(worldBounds);
+        buttonNewGame.resize(worldBounds);
+        message.resize(worldBounds);
         for (Star star : starList) {
             star.resize(worldBounds);
         }
         if (state == State.PLAYING) {
             mainShip.resize(worldBounds);
         }
+
     }
 
     @Override
@@ -222,7 +239,10 @@ public class GameScreen extends BaseScreen {
     public boolean touchDown(Vector2 touch, int pointer) {
         if (state == State.PLAYING) {
             mainShip.touchDown(touch, pointer);
+
         }
+        buttonNewGame.touchDown(touch, pointer );
+
         return false;
     }
 
@@ -230,8 +250,20 @@ public class GameScreen extends BaseScreen {
     public boolean touchUp(Vector2 touch, int pointer) {
         if (state == State.PLAYING) {
             mainShip.touchUp(touch, pointer);
+
         }
+        buttonNewGame.touchUp(touch, pointer);
         return false;
     }
+
+    public void action(){
+        enemyPool.getActiveObjects().clear();
+        bulletPool.getActiveObjects().clear();
+        explosionPool.getActiveObjects().clear();
+        this.mainShip = new MainShip(atlas, bulletPool, explosionPool, laserSound);
+        mainShip.resize( getWorldBounds());
+        this.state = State.PLAYING;
+    }
+
 }
 
